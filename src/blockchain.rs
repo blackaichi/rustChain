@@ -23,7 +23,7 @@ impl Blockchain {
         self.chain.push(new_block);
     }
 
-    fn get_last_block(&mut self) -> &mut Block{
+    pub fn get_last_block(&mut self) -> &mut Block{
         match self.chain.last_mut() {
             Some(res) => res,
             None => panic!("Error getting last block"),

@@ -1,6 +1,7 @@
 use sha2::{Sha256, Digest};
 use std::convert::TryFrom;
-use std::{fmt::Write};
+
+use crate::map::convert_ascii;
 
 pub fn create_block(n_index: u64, data: &str) -> Block {
     Block {
@@ -21,27 +22,20 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn create_block(&mut self, n_index: u64, data: String) {
-        self.n_nonce = -1;
-        self.n_index = n_index;
-        self.data = data;
-    }
-
     pub fn get_hash(&self) -> &str {
         &self.prev_hash
     }
 
     fn calculate_hash(&self) -> String {
         let ss = format!("{}{}{}{}", self.n_index, self.data, self.n_nonce, self.s_hash);
-
         let mut hasher = Sha256::new();
-        hasher.input(ss.as_bytes());
-        let s =  hasher.result().to_vec();
-        let a = &s[..];
-
-        let mut s = String::with_capacity(a.len() * 2);
-        for &b in a {
-            write!(&mut s, "{:02x}", b);
+        hasher.input(&ss);
+        
+        let a = hasher.result();
+        let mut s = String::from("");
+        for b in a {
+            s.push(convert_ascii((b&0xf0)>>4));
+            s.push(convert_ascii(b&0xf));
         }
         s
     }
@@ -65,5 +59,9 @@ impl Block {
                 break; 
             }
         }
+    }
+
+    pub fn get_data(self) -> String {
+        self.data
     }
 }
